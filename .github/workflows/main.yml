@@ -38,4 +38,3 @@ jobs:
           pip install -r req.txt
           sudo systemctl restart test-ci-cd.service
         EOF
-        rm private_key

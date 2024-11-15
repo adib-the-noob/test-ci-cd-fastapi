@@ -10,6 +10,16 @@ async def home():
         "message": "Hello! This is Home page!"
     }
 
+@app.get('/ci-cd-stuff')
+async def ci_cd_stuff():
+    return {
+        "status": "success",
+        "data": {
+            "message": "This is a CI-CD pipeline test",
+            "description": "This is a test to check the CI-CD pipeline!!",
+            "status": "successful"
+        }
+    }
 
 @app.get('/added-path')
 async def added_path():
