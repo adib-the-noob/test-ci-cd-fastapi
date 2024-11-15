@@ -1,0 +1,41 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r req.txt
+
+    - name: Deploy to AWS Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" > aws_transcoder_private_key
+        chmod 600 aws_transcoder_private_key
+        ssh -o StrictHostKeyChecking=no -i aws_transcoder_private_key $SERVER_USER@$SERVER_IP << 'EOF'
+          cd /home/ubuntu/test-ci-cd-fastapi
+          git pull origin main
+          source /home/ubuntu/test-ci-cd-fastapi/venv/bin/activate
+          pip install -r req.txt
+          sudo systemctl restart test-ci-cd.service
+        EOF
+        rm private_key
